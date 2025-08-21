@@ -1,8 +1,7 @@
 import time
 import os
 from datetime import datetime
-import matplotlib.pyplot as plt  # <--- MODIFICATION: Importation de matplotlib
-
+import matplotlib.pyplot as plt  
 from connector import WebSocketClient
 from order_book import OrderBook
 from trade_feed import TradeFeed
@@ -15,7 +14,7 @@ def clear_console():
     os.system('cls' if os.name == 'nt' else 'clear 2>/dev/null')
 
 def format_book(bids, asks, max_levels=10):
-    """Met en forme le carnet d'ordres pour un affichage clair."""
+    """Met en forme le carnet d'ordres """
     print(f"{'BIDS':>12} {'SIZE':>12} | {'PRICE':>12} | {'SIZE':>12} {'ASKS':<12}")
     print("-" * 60)
     for i in range(max_levels):
@@ -44,7 +43,7 @@ def format_trades(trades):
 def format_liquidity_stats(analyzer):
     """Met en forme les statistiques de liquidité."""
     print("\n" + "-" * 60)
-    print("ANALYSE DU SPREAD EFFECTIF")
+    print("ANALYSE DU SPREAD")
     print("-" * 60)
     print(f"{'SIZE (BTC)':<12} {'CURRENT':>10} {'AVG':>10} {'MEDIAN':>10} {'MIN':>8} {'MAX':>8}")
     for size, stats in analyzer.stats.items():
@@ -54,7 +53,7 @@ def format_liquidity_stats(analyzer):
 def format_strategy_status(mm, rm):
     """Met en forme le statut de la stratégie et du risque."""
     print("\n" + "-" * 60)
-    print("STATUT DE LA STRATÉGIE")
+    print("ETAT DE LA STRATÉGIE")
     print("-" * 60)
     status_color = '\033[92m' if rm.is_active else '\033[91m'
     status_text = "ACTIVE" if rm.is_active else "INACTIVE (RISK LIMIT)"
@@ -66,13 +65,13 @@ def format_strategy_status(mm, rm):
     reset_color = '\033[0m'
     print(f"Position       : {mm.position:,.4f} BTC (Avg Entry: {mm.avg_entry_price:,.2f})")
     print(f"Exposition     : {mm.exposure:,.2f} / {rm.MAX_EXPOSURE:,.0f} USD")
-    print(f"P&L Réalisé    : {mm.realized_pnl:,.2f} USD")
-    print(f"P&L Non-Réalisé: {mm.unrealized_pnl:,.2f} USD")
-    print(f"P&L (Total)    : {pnl_color}{mm.realized_pnl + mm.unrealized_pnl:,.2f} USD{reset_color} (Max Loss: {rm.MAX_LOSS:,.0f} USD)")
+    print(f"PnL Realized    : {mm.realized_pnl:,.2f} USD")
+    print(f"PnL Unrealized: {mm.unrealized_pnl:,.2f} USD")
+    print(f"PnL (Total)    : {pnl_color}{mm.realized_pnl + mm.unrealized_pnl:,.2f} USD{reset_color} (Max Loss: {rm.MAX_LOSS:,.0f} USD)")
 
 def main():
     symbol = "btcusdt"
-    spread_history_for_plot = []  # <--- MODIFICATION: Initialisation de la liste pour le graphique
+    spread_history_for_plot = []
 
     ws_client = WebSocketClient(symbol=symbol)
     order_book = OrderBook(symbol=symbol)
@@ -81,15 +80,15 @@ def main():
     market_maker = MarketMaker(order_book, trade_feed, quote_spread=0.01, order_size=1)
     risk_manager = RiskManager(market_maker)
 
-    # --- NOUVELLE LOGIQUE DE DÉMARRAGE ROBUSTE ---
+    # Connecter le client WebSocket
     ws_client.on_depth_update = order_book.handle_depth_update
     ws_client.on_trade = trade_feed.add_trade
     sync_attempts = 0
-    MAX_ATTEMPTS = 5
+    MAX_ATTEMPTS = 10 # Nombre maximum de tentatives de synchronisation
 
     while not order_book.is_initialized and sync_attempts < MAX_ATTEMPTS:
         sync_attempts += 1
-        print(f"--- Tentative de synchronisation n°{sync_attempts}/{MAX_ATTEMPTS} ---")
+        print(f"--- Tentative de synchronisation {sync_attempts}/{MAX_ATTEMPTS} ---")
         if ws_client.ws:
             ws_client.disconnect()
         order_book.reset()
@@ -103,10 +102,10 @@ def main():
             time.sleep(2)
 
     if not order_book.is_initialized:
-        print(f"!!! ERREUR: Impossible de synchroniser le carnet d'ordres après {MAX_ATTEMPTS} tentatives. Arrêt du programme. !!!")
+        print(f"Impossible de synchroniser le carnet d'ordres après {MAX_ATTEMPTS} tentatives. Arrêt du programme. !!!")
         exit()
 
-    print("\n*** Synchronisation du carnet d'ordres réussie. Démarrage de la simulation. ***\n")
+    print("\n*** Synchronisation du carnet d'ordres réussie ***\n")
     time.sleep(2)
     try:
         while True:
@@ -133,15 +132,14 @@ def main():
             recent_trades = trade_feed.get_recent_trades(10)
             best_bid, best_ask, spread = order_book.get_spread()
 
-            # <--- MODIFICATION: Stockage des données pour le graphique
             if spread is not None and spread > 0:
                 spread_history_for_plot.append((datetime.now(), spread))
 
-            print(f"--- Marché: {symbol.upper()} --- {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ---")
+            print(f"\n--- Marché: {symbol.upper()} --- {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ---")
 
             if best_bid and best_ask:
                 spread_str = f"{spread:,.2f}" if spread is not None else "CROSSED"
-                print(f"Spread: {spread_str} (Bid: {best_bid:,.2f} / Ask: {best_ask:,.2f})")
+                print(f"Spread: {spread_str} (Bid: {best_bid:,.2f} / Ask: {best_ask:,.2f})\n")
                 if spread_str == "CROSSED":
                     print("Carnet crossed détecté, réinitialisation...")
                     order_book.initialize_snapshot()
@@ -158,31 +156,28 @@ def main():
             time.sleep(0.5)
 
     except KeyboardInterrupt:
-        print("\nArrêt du programme demandé par l'utilisateur.")
+        print("\nArrêt")
     finally:
         ws_client.disconnect()
         market_maker.update_pnl()
         total_pnl = market_maker.realized_pnl + market_maker.unrealized_pnl
-        print(f"\n--- Résumé Final de la Simulation ---")
-        print(f"P&L Réalisé    : {market_maker.realized_pnl:.2f} USD")
-        print(f"P&L Non-Réalisé: {market_maker.unrealized_pnl:.2f} USD (sur position de {market_maker.position:.4f} BTC)")
-        print(f"P&L Total Final: {total_pnl:.2f} USD")
+        print(f"\n--- PnL Final ---")
+        print(f"PnL Réalisé    : {market_maker.realized_pnl:.2f} USD")
+        print(f"PnL Non-Réalisé: {market_maker.unrealized_pnl:.2f} USD (sur {market_maker.position:.4f} BTC)")
+        print(f"PnL Total Final: {total_pnl:.2f} USD")
 
-        # <--- MODIFICATION: Section complète pour générer et afficher le graphique
         if spread_history_for_plot:
             print("\nGénération du graphique de l'historique du spread...")
             timestamps, spreads = zip(*spread_history_for_plot)
 
             plt.figure(figsize=(15, 7))
-            plt.plot(timestamps, spreads, label=f'Spread du marché sur {symbol.upper()}')
+            plt.plot(timestamps, spreads, label=f'Spread sur {symbol.upper()}')
             plt.title(f'Historique du Spread sur {symbol.upper()}')
             plt.xlabel('Temps')
-            plt.ylabel('Spread (USD)')
+            plt.ylabel('Spread')
             plt.grid(True)
             plt.legend()
             plt.gcf().autofmt_xdate()
-
-            print("Affichage du graphique. Fermez la fenêtre du graphique pour terminer le programme.")
             plt.show()
 
 if __name__ == "__main__":
