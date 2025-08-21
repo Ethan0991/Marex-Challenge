@@ -1,4 +1,4 @@
-# Simulation d'un Desk de Trading Crypto
+# Simulation d'un Market Maker Crypto
 
 Ce projet simule en Python une stratégie market making sur le marché BTC/USDT. L'application se connecte en temps réel aux flux de données de l'échange Binance pour gérer un carnet d'ordres, analyser la liquidité et simuler une stratégie de trading tout en appliquant des contraintes de risque.
 
