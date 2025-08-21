@@ -9,7 +9,7 @@ Ce projet simule en Python une stratégie market making sur le marché BTC/USDT.
 -   **Analyse de la Liquidité** : Calcule le **spread effectif** en temps réel pour différentes tailles d'ordres (0.1, 1, 5, 10 BTC) en se basant sur le coût VWAP (Volume-Weighted Average Price) pour traverser le carnet.
 -   **Stratégie de Market Making** :
     -   Place des ordres d'achat (bid) et de vente (ask) simulés autour du prix médian du marché.
-    -   Ajuste les cotations en fonction de la position actuelle ("skewing") pour gérer l'inventaire.
+    -   Ajuste les cotations en fonction de la position actuelle par skewing pour gérer l'inventaire.
     -   (Bonus) Adapte le spread des cotations en fonction de la volatilité récente du marché.
 -   **Simulation d'Exécution** : Simule l'exécution des ordres (fills) en se basant sur le flux des transactions réelles du marché.
 -   **Gestion du Risque** : Ajoute des limites pour désactiver la stratégie en cas de dépassement :
