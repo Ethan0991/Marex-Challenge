@@ -2,7 +2,7 @@
 
 Ce projet simule en Python une stratégie market making sur le marché BTC/USDT. L'application se connecte en temps réel aux flux de données de l'échange Binance pour gérer un carnet d'ordres, analyser la liquidité et simuler une stratégie de trading tout en appliquant des contraintes de risque.
 
-## Fonctionnalités Principales
+## Fonctionnalités
 
 -   **Connexion Temps Réel** : Utilise les WebSockets de Binance pour s'abonner aux flux de données du carnet d'ordres (Level 2, `@depth`) et des transactions du marché (`@trade`).
 -   **Gestion Robuste du Carnet d'Ordres** : Implémente la méthode de synchronisation recommandée par Binance, combinant un snapshot initial via l'API REST avec la mise en tampon et l'application des mises à jour du flux WebSocket pour garantir un carnet d'ordres local précis et sans désynchronisation.
