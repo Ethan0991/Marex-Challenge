@@ -8,10 +8,10 @@ Ce projet simule en Python une stratégie market making sur le marché BTC/USDT.
 -   **Gestion Robuste du Carnet d'Ordres** : Implémente la méthode de synchronisation recommandée par Binance, combinant un snapshot initial via l'API REST avec la mise en tampon et l'application des mises à jour du flux WebSocket pour garantir un carnet d'ordres local précis et sans désynchronisation.
 -   **Analyse de la Liquidité** : Calcule le **spread effectif** en temps réel pour différentes tailles d'ordres (0.1, 1, 5, 10 BTC) en se basant sur le coût VWAP (Volume-Weighted Average Price) pour traverser le carnet.
 -   **Stratégie de Market Making** :
-    -   Place des ordres d'achat (bid) et de vente (ask) simulés autour du prix médian du marché.
+    -   Place des bids et asks simulés autour du midprice.
     -   Ajuste les cotations en fonction de la position actuelle par skewing pour gérer l'inventaire.
     -   (Bonus) Adapte le spread des cotations en fonction de la volatilité récente du marché.
--   **Simulation d'Exécution** : Simule l'exécution des ordres (fills) en se basant sur le flux des transactions réelles du marché.
+-   **Simulation d'Exécution** : Simule l'exécution des fills en se basant sur le flux des transactions réelles du marché.
 -   **Gestion du Risque** : Ajoute des limites pour désactiver la stratégie en cas de dépassement :
     -   Exposition notionnelle maximale.
     -   Perte maximale autorisée.
